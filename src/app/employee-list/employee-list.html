@@ -4,19 +4,188 @@
         <p>Manage and view Employees in youre organization</p>
     </div>
 
+    <div class="toolbar">
+        <div class="serach-box">
+            <input type="text" placeholder="Search by name, email, or department..."
+             (input)="onSearch($any($event.target).value)"/>
+        </div>
+
+        <div class="filters">
+            <select (change)="onDepartmentFilter($any($event.target).value)">
+                <option value="">All Department</option>
+                @for (department of departments; track $index)
+                {
+                    <option [value]="department">{{department}}</option>
+                }
+            </select>
+             <select (change)="onStatusFilter($any($event.target).value)">
+                <option value="">All Status</option>
+                @for (status of statuses; track $index)
+                {
+                    <option [value]="status">{{status}}</option>
+                }
+            </select>
+             <select (change)="onLocationFilter($any($event.target).value)">
+                <option value="">All Location</option>
+                @for (location of locations; track $index)
+                {
+                    <option [value]="location">{{location}}</option>
+                }
+            </select>
+        </div>
+
+        
+    </div>
+
+    <div class="results-count">
+        @if (filteredCount > 0){
+            Showing {{rangeStart}} of {{rangeEnd}} of {{filteredCount}} employees
+        }
+        @else
+        {
+            No Employees found
+        }
+    </div>
+    @if(isLoading){
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Loading employee....</p>
+        </div>
+    }
+    @else{
     <div class="table-container">
         <table class="employee-table">
             <thead>
                 <tr>
-                    <th>Employee</th>
-                    <th>Email</th>
-                    <th>Department</th>
-                    <th>Designation</th>
-                    <th>Location</th>
-                    <th>Status</th>
-                    <th>Salary</th>
-                    <th>Join Date</th>
-                    <th>Actions</th>
+                    <th class="sortable" (click)="onSort('firstName')">
+                    Employee
+                    @if (sortColumn === 'firstName')
+                    {
+                        <span class="sort-indicator">
+                            @if (sortDirection === 'asc'){
+                                ↑
+                            }
+                            @else
+                            {
+                                ↓
+                            }
+                        </span>
+                    }</th>
+
+                    <th class="sortable" (click)="onSort('email')">
+                    Email
+                    @if (sortColumn === 'email')
+                    {
+                        <span class="sort-indicator">
+                            @if (sortDirection === 'asc'){
+                                ↑
+                            }
+                            @else
+                            {
+                                ↓
+                            }
+                        </span>
+                    }
+                    </th>
+                    <th class="sortable" (click)="onSort('department')">
+                    Department
+                    @if (sortColumn === 'department')
+                    {
+                        <span class="sort-indicator">
+                            @if (sortDirection === 'asc'){
+                                ↑
+                            }
+                            @else
+                            {
+                                ↓
+                            }
+                        </span>
+                    }
+                    </th>
+                    <th class="sortable" (click)="onSort('designation')">Designation
+                    @if (sortColumn === 'designation')
+                    {
+                        <span class="sort-indicator">
+                            @if (sortDirection === 'asc'){
+                                ↑
+                            }
+                            @else
+                            {
+                                ↓
+                            }
+                        </span>
+                    }
+                    </th>
+                    <th class="sortable" (click)="onSort('location')">Location
+                         @if (sortColumn === 'location')
+                    {
+                        <span class="sort-indicator">
+                            @if (sortDirection === 'asc'){
+                                ↑
+                            }
+                            @else
+                            {
+                                ↓
+                            }
+                        </span>
+                    }
+                    </th>
+                    <th class="sortable" (click)="onSort('status')">Status
+                         @if (sortColumn === 'status')
+                    {
+                        <span class="sort-indicator">
+                            @if (sortDirection === 'asc'){
+                                ↑
+                            }
+                            @else
+                            {
+                                ↓
+                            }
+                        </span>
+                    }
+                    </th>
+                    <th class="sortable" (click)="onSort('salary')">Salary
+                         @if (sortColumn === 'salary')
+                    {
+                        <span class="sort-indicator">
+                            @if (sortDirection === 'asc'){
+                                ↑
+                            }
+                            @else
+                            {
+                                ↓
+                            }
+                        </span>
+                    }
+                    </th>
+                    <th class="sortable" (click)="onSort('joinDate')">Join Date
+                         @if (sortColumn === 'joinDate')
+                    {
+                        <span class="sort-indicator">
+                            @if (sortDirection === 'asc'){
+                                ↑
+                            }
+                            @else
+                            {
+                                ↓
+                            }
+                        </span>
+                    }
+                    </th>
+                    <th class="sortable" (click)="onSort('actions')">Actions
+                         @if (sortColumn === 'actions')
+                    {
+                        <span class="sort-indicator">
+                            @if (sortDirection === 'asc'){
+                                ↑
+                            }
+                            @else
+                            {
+                                ↓
+                            }
+                        </span>
+                    }
+                    </th>
                 </tr>
             </thead>
 
@@ -42,8 +211,8 @@
                         <span class="status-badge" [class]="'status-'+ employee.status" >
                             {{employee.status}}
                         </span></td>
-                        <td>${{employee.salary}}</td>
-                        <td>{{employee.joinDate}}</td>
+                        <td>${{employee.salary | number}}</td>
+                        <td>{{employee.joinDate | date: 'mediumDate'}}</td>
                         <td>
                             <div class="actions">
                                 <button class="btn-view">View</button>
@@ -55,4 +224,5 @@
             </tbody>
         </table>
     </div>
+    }
 </div>
