@@ -216,5 +216,112 @@ export class EmployeeService {
         }
 
     }
+    deleteEmployee(id: number): Observable<unknown>{
+        this.allEmployes = this.allEmployes.filter(emp => emp.id != id);
 
+        const newTotalPages = Math.ceil(this.allEmployes.length / this.pageSize);
+        if (this.currentPage > newTotalPages)
+        {
+            this.currentPage = newTotalPages;
+        }
+        else if(newTotalPages == 0)
+        {
+            this.currentPage = 1;
+        }
+
+        return this.http.delete(`${this.apiUrl}/${id}`)
+    }
+
+    updateEmployee(id: number, updateData: Partial<Employee>): Observable<Employee>
+    
+    {
+
+        const index = this.allEmployes.findIndex(emp => emp.id === id);
+
+        if (index === -1)
+        {
+            return new Observable<Employee>;
+        }
+
+        this.allEmployes[index] = {...this.allEmployes[index], ...updateData};
+
+        return this.http.put<Employee>(`${this.apiUrl}/${id}`, updateData)
+        // {
+        //     return;
+        // }
+    }
+
+    addEmployee(data: Partial<Employee>): Observable<Employee>{
+        const newId = this.allEmployes.reduce(
+            (max, emp) => emp.id> max? emp.id: max, 0
+        ) + 1;
+
+        const newEmployee : Employee = {
+            id: newId,
+            firstName: data.firstName || '',
+            lastName: data.lastName || '',
+            email: data.email || '',
+            phone: data.phone || '',
+            department: data.department || 'Engineering',
+            designation: data.department || '',
+            location: data.department || 'New York',
+            salary: data.salary || 0,
+            joinDate: new Date().toISOString().split('T')[0],
+            status: data.status || 'Active',
+            managerId: null,
+            avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' +newId
+
+        };
+
+        this.allEmployes.push(newEmployee);
+
+        return this.http.post<Employee>(this.apiUrl, newEmployee);
+    };
+
+    // Export to CSV
+
+    getEmployeesForExport(): Employee[]
+    {
+      
+         let result = [...this.allEmployes];
+
+        if (this.serachTerm.trim()) {
+            const term = this.serachTerm.toLowerCase().trim();
+
+            result = result.filter((employee: Employee) => {
+                return (
+                    employee.firstName.toLowerCase().includes(term) ||
+                    employee.lastName.toLowerCase().includes(term) ||
+                    employee.email.toLowerCase().includes(term) ||
+                    employee.department.toLowerCase().includes(term) ||
+                    employee.designation.toLowerCase().includes(term) ||
+                    employee.location.toLowerCase().includes(term)
+                );
+            });
+        }
+
+        if (this.filterDepartment)
+        {
+            result = result.filter(emp => emp.department === this.filterDepartment)
+        }
+
+        if (this.filterStatus)
+        {
+            result = result.filter(emp => emp.status === this.filterStatus)
+        }
+
+        if (this.filterLocation)
+        {
+            result = result.filter(emp => emp.location === this.filterLocation)
+        }
+
+        result = this.applySort(result);
+
+        // this.filteredCount = result.length;
+
+        result = this.applySort(result);
+
+        return result;
+
+    }
 }
